@@ -150,6 +150,7 @@ const addDepartment = () => { //THEN I am prompted to enter the name of the depa
             //console.log(res);
             console.log(`Added ${answers.name} to the database`);
             viewAllDepartments(); //show the updated table
+            //menuReturn(); //return to the main menu
         });
     });
 
@@ -179,29 +180,30 @@ const addRole = () => { //THEN I am prompted to enter the name, salary, and depa
         },
     ];
     inquirer.prompt(questions).then(answers => {
-        console.log(answers);
-        // TODO: query the database to find the department ID for the department name entered
-        let departmentID; //TODO: replace with the department ID from the database
+        //console.log(answers);
+
+        let departmentID; 
         const idQuery = 'SELECT id FROM department WHERE department_name = ?';
         db.query(idQuery, answers.inputDepartment, function (err, res) {
             if (err) {
                 console.error(err);
                 return;
             }
-            console.log(res);
-            console.log(res[0]);
+            //console.log(res);
+            //console.log(res[0]);
             departmentID = res[0];
-            console.log(departmentID);
-            console.log(departmentID.id);
+            //console.log(departmentID);
+            //console.log(departmentID.id);
 
             const insertQuery = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
-            db.query(insertQuery, [answers.inputTitle, answers.inputSalary, departmentID.id /* TODO: replace with DB query result*/], function (err, res) {
+            db.query(insertQuery, [answers.inputTitle, answers.inputSalary, departmentID.id], function (err, res) {
             if (err) {
                 console.error(err);
                 return;
             }
             console.log(res);
             viewAllRoles(); //show the updated table
+            //menuReturn(); //return to the main menu 
             });
         });
     });
@@ -215,40 +217,42 @@ const addEmployee = () => { //THEN I am prompted to enter the employee’s first
     [
         { 
         type: 'input',
-        name: 'firstName',
-        message: '?',
+        name: 'inputFirstName',
+        message: 'Enter the first name for the new employee: ',
         },
         { 
             type: 'input',
-            name: 'addDepartment',
-            message: '?',
+            name: 'inputLastName',
+            message: 'Enter the last name for the new employee: ',
         },
         { 
             type: 'input',
-            name: 'addDepartment',
-            message: '?',
+            name: 'inputRole',
+            message: 'Enter the role for the new employee: ',
         },
         { 
             type: 'input',
-            name: 'addDepartment',
-            message: '?',
+            name: 'inputManager',
+            message: 'Enter the name for the manager of the new employee (if no manager push enter)',
         },
     ];
 
+    console.log(""); // Add a line break so the table doesn't block the input prompt
     inquirer.prompt(questions).then(answers => {
         console.log(answers);
-        const query = 'INSERT INTO role(roleName, roleSalary, roleDepartment) values(?,?,?)';
-        db.query(query, answers, function (err, res) {
+        let roleID = 1; //TODO: get the role ID from the role table
+        let managerID = 1; //TODO: get the manager ID from the employee table
+        const query = 'INSERT INTO employee(first_name, last_name, role_id, manager_id) values(?,?,?,?)';
+        db.query(query, [answers.inputFirstName, answers.inputLastName, roleID, managerID], function (err, res) {
             if (err) {
                 console.error(err);
                 return;
             }
             console.log(res);
             viewAllEmployees(); //show the updated table
+            //menuReturn(); //return to the main menu
         });
     });
-
-    menuReturn();
 };
 
 const updateEmployeeRole = () => { //THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
@@ -269,10 +273,10 @@ const updateEmployeeRole = () => { //THEN I am prompted to select an employee to
                 return;
             }
             console.log(res);
+            viewAllEmployees(); //show the updated table
+            //menuReturn(); //return to the main menu
         });
     });
-
-    menuReturn();
 };
 
 if(firstIt === true) {
