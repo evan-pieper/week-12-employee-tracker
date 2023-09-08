@@ -135,23 +135,23 @@ const addDepartment = () => { //THEN I am prompted to enter the name of the depa
     const questions = 
     [{ 
         type: 'input',
-        name: 'addDepartment',
+        name: 'name',
         message: 'enter the department name to be added: ',
     },];
     
     inquirer.prompt(questions).then(answers => {
         //console.log(answers);
-        const query = 'INSERT INTO department(department_name) values(?)';
-        db.query(query, answers, function (err, res) {
+        const query = 'INSERT INTO department(name) values(?)';
+        db.query(query, answers.name, function (err, res) {
             if (err) {
                 console.error(err);
                 return;
             }
-            console.log(res);
+            //console.log(res);
+            console.log(`Added ${answers.name} to the departments table in database`);
+            viewAllDepartments(); //show the updated table
         });
     });
-
-    viewAllDepartments();
 
     //menuReturn();
 };
@@ -180,17 +180,16 @@ const addRole = () => { //THEN I am prompted to enter the name, salary, and depa
     ];
     inquirer.prompt(questions).then(answers => {
         console.log(answers);
-        const query = 'INSERT INTO role(roleName, roleSalary, roleDepartment) values(?,?,?)';
+        const query = 'INSERT INTO role(title, roleSalary, roleDepartment) values(?,?,?)';
         db.query(query, answers, function (err, res) {
             if (err) {
                 console.error(err);
                 return;
             }
             console.log(res);
+            viewAllRoles(); //show the updated table
         });
     });
-
-    viewAllRoles();
 
     //menuReturn();
 };
@@ -230,6 +229,7 @@ const addEmployee = () => { //THEN I am prompted to enter the employee’s first
                 return;
             }
             console.log(res);
+            viewAllEmployees(); //show the updated table
         });
     });
 
