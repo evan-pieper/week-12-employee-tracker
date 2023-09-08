@@ -148,7 +148,7 @@ const addDepartment = () => { //THEN I am prompted to enter the name of the depa
                 return;
             }
             //console.log(res);
-            console.log(`Added ${answers.name} to the departments table in database`);
+            console.log(`Added ${answers.name} to the database`);
             viewAllDepartments(); //show the updated table
         });
     });
