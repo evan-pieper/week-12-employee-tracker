@@ -140,7 +140,7 @@ const addDepartment = () => { //THEN I am prompted to enter the name of the depa
     },];
     
     inquirer.prompt(questions).then(answers => {
-        console.log(answers);
+        //console.log(answers);
         const query = 'INSERT INTO department(department_name) values(?)';
         db.query(query, answers, function (err, res) {
             if (err) {
@@ -151,7 +151,9 @@ const addDepartment = () => { //THEN I am prompted to enter the name of the depa
         });
     });
 
-    menuReturn();
+    viewAllDepartments();
+
+    //menuReturn();
 };
 
 const addRole = () => { //THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
@@ -188,7 +190,9 @@ const addRole = () => { //THEN I am prompted to enter the name, salary, and depa
         });
     });
 
-    menuReturn();
+    viewAllRoles();
+
+    //menuReturn();
 };
 
 const addEmployee = () => { //THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
