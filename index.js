@@ -162,26 +162,30 @@ const addRole = () => { //THEN I am prompted to enter the name, salary, and depa
     [
         { 
         type: 'input',
-        name: 'roleName',
-        message: 'Enter the role name: ',
+        name: 'inputTitle',
+        message: 'Enter the title for the new role: ',
         },
 
         { 
             type: 'input',
-            name: 'roleSalary',
-            message: 'Enter the role salary: ',
+            name: 'inputSalary',
+            message: 'Enter the salary for the new role: ',
         },
 
         { 
             type: 'input',
-            name: 'roleDepartment',
-            message: 'Enter the role department: ',
+            name: 'inputDepartment',
+            message: 'Enter the department for the new role: ',
         },
     ];
     inquirer.prompt(questions).then(answers => {
         console.log(answers);
-        const query = 'INSERT INTO role(title, roleSalary, roleDepartment) values(?,?,?)';
-        db.query(query, answers, function (err, res) {
+        // TODO: query the database to find the department ID for the department name entered
+        const departmentID = 1; //TODO: replace with the department ID from the database
+
+
+        const query = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
+        db.query(query, [answers.inputTitle, answers.inputSalary, departmentID /* TODO: replace with DB query result*/], function (err, res) {
             if (err) {
                 console.error(err);
                 return;
