@@ -5,7 +5,7 @@ use company_db;
 
 create table department (
     id int not null auto_increment,
-    name varchar(30) not null,
+    department_name varchar(30) not null,
     primary key (id)
 );
 
