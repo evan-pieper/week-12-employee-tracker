@@ -90,8 +90,14 @@ const viewAllDepartments = () => {
 };
 
 const viewAllRoles = () => { //TODO: Add department name to the role table from the department table using the department ID
-    console.log('View all roles');
-    db.query('SELECT * FROM role', function (err, results) {
+    console.log('View all roles'); 
+    //JOIN book_prices ON favorite_books.book_price = book_prices.id;
+    const query = 'SELECT role.id, role.title, role.salary, department.name FROM role left JOIN department ON role.department_id = department.id';
+    db.query(query, function (err, results) {
+        if (err) {
+            console.error(err);
+            return;
+        }
         console.log(results);
     });
     menuReturn();
@@ -99,7 +105,7 @@ const viewAllRoles = () => { //TODO: Add department name to the role table from 
 
 const viewAllEmployees = () => { //TODO: Add role name to the employee table from the role table using the role ID, and add manager name to the employee table from the employee table using the manager ID
     console.log('View all employees');
-    db.query('SELECT * FROM employee', function (err, results) {
+    db.query('SELECT * FROM employee left JOIN manager ON employee.manager_id = employee.id', function (err, results) {
         console.log(results);
     });
 
