@@ -82,8 +82,14 @@ const menuReturn = () => {
 
 const viewAllDepartments = () => {
     console.log('View all departments');
-    db.query('SELECT * FROM department', function (err, results) {
-        console.log(results);
+    const query = 'SELECT * FROM department';
+    db.query(query, function (err, results) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log(""); // Add a line break so the table is not on the same line as the menu
+        console.table(results);
     });
 
     menuReturn();
@@ -92,21 +98,33 @@ const viewAllDepartments = () => {
 const viewAllRoles = () => { //TODO: Add department name to the role table from the department table using the department ID
     console.log('View all roles'); 
     //JOIN book_prices ON favorite_books.book_price = book_prices.id;
-    const query = 'SELECT role.id, role.title, role.salary, department.name FROM role left JOIN department ON role.department_id = department.id';
+    const query = 'SELECT role.id, role.title, role.salary, department.name AS "Department" FROM role LEFT JOIN department ON role.department_id = department.id';
     db.query(query, function (err, results) {
         if (err) {
             console.error(err);
             return;
         }
-        console.log(results);
+        console.log(""); // Add a line break so the table is not on the same line as the menu
+        console.table(results);
     });
     menuReturn();
 };
 
 const viewAllEmployees = () => { //TODO: Add role name to the employee table from the role table using the role ID, and add manager name to the employee table from the employee table using the manager ID
-    console.log('View all employees');
-    db.query('SELECT * FROM employee left JOIN manager ON employee.manager_id = employee.id', function (err, results) {
-        console.log(results);
+    console.log('View all employees');  //formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
+    const query = 
+    `SELECT e.id, e.first_name, e.last_name, m.first_name AS "Manager", r.title AS "Role Title" 
+    FROM employee e
+    LEFT JOIN role r ON e.role_id = r.id
+    LEFT JOIN employee m ON e.manager_id = m.id`;
+
+    db.query(query, function (err, results) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log(""); // Add a line break so the table is not on the same line as the menu
+        console.table(results);
     });
 
     menuReturn();
