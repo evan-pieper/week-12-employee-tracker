@@ -1,4 +1,4 @@
-insert into department (name) values 
+insert into department (department_name) values 
 ('Sales'),
 ('Marketing'),
 ('Engineering'),

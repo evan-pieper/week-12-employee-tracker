@@ -98,7 +98,7 @@ const viewAllDepartments = () => {
 const viewAllRoles = () => { //TODO: Add department name to the role table from the department table using the department ID
     console.log('View all roles'); 
     //JOIN book_prices ON favorite_books.book_price = book_prices.id;
-    const query = 'SELECT role.id, role.title, role.salary, department.name AS "Department" FROM role LEFT JOIN department ON role.department_id = department.id';
+    const query = 'SELECT role.id, role.title, role.salary, department.department_name AS "Department" FROM role LEFT JOIN department ON role.department_id = department.id';
     db.query(query, function (err, results) {
         if (err) {
             console.error(err);
@@ -135,14 +135,14 @@ const addDepartment = () => { //THEN I am prompted to enter the name of the depa
     const questions = 
     [{ 
         type: 'input',
-        name: 'name',
+        name: 'department_name',
         message: 'enter the department name to be added: ',
     },];
     
     inquirer.prompt(questions).then(answers => {
         //console.log(answers);
-        const query = 'INSERT INTO department(name) values(?)';
-        db.query(query, answers.name, function (err, res) {
+        const query = 'INSERT INTO department(department_name) values(?)';
+        db.query(query, answers.department_name, function (err, res) {
             if (err) {
                 console.error(err);
                 return;
