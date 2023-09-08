@@ -1,13 +1,13 @@
 const inquirer = require('inquirer');
-const express = require('express');
+//const express = require('express');
 const mysql = require('mysql2'); 
 require('dotenv').config();
 
-const PORT = process.env.PORT || 3001;
-const app = express();
+//const PORT = process.env.PORT || 3001;
+//const app = express();
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+//app.use(express.urlencoded({ extended: false }));
+//app.use(express.json());
 
 const db = mysql.createConnection(
     {
@@ -33,7 +33,8 @@ function actionPrompt() {
                 'Add a department',
                 'Add a role',
                 'Add an employee',
-                'Update an employee role'
+                'Update an employee role',
+                'Quit'
             ]
         }
     ];
@@ -61,12 +62,15 @@ function actionPrompt() {
             case 'Update an employee role':
                 updateEmployeeRole();
                 break;
+            case 'Quit':
+                console.log('Goodbye');
+                break;
         }
     });
 }
 
 function menuReturn() {
-    const questions = [
+    /* const questions = [
         {
             type: 'input',
             name: 'menuReturn',
@@ -76,7 +80,8 @@ function menuReturn() {
 
     inquirer.prompt(questions).then(answers => {
         actionPrompt();
-    });
+    }); */
+    actionPrompt();
 }
 
 
