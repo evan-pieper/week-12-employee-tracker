@@ -67,40 +67,65 @@ function init() {
 
 const viewAllDepartments = () => {
     console.log('View all departments');
-    db.query('SELECT * departments', function (err, results) {
+    db.query('SELECT * FROM department', function (err, results) {
         console.log(results);
       });
 
 };
 
-const viewAllRoles = () => {
+const viewAllRoles = () => { //TODO: Add department name to the role table from the department table using the department ID
     console.log('View all roles');
-    db.query('SELECT * roles', function (err, results) {
+    db.query('SELECT * FROM role', function (err, results) {
         console.log(results);
     });
 }
 
-const viewAllEmployees = () => {
+const viewAllEmployees = () => { //TODO: Add role name to the employee table from the role table using the role ID, and add manager name to the employee table from the employee table using the manager ID
     console.log('View all employees');
-    db.query('SELECT * employees', function (err, results) {
+    db.query('SELECT * FROM employee', function (err, results) {
         console.log(results);
     });
 }
 
-const addDepartment = () => {
+const addDepartment = () => { //THEN I am prompted to enter the name of the department and that department is added to the database
     console.log('Add a department');
+    const questions = 
+    [{ 
+        type: 'input',
+        name: 'addDepartment',
+        message: '?',
+    },];
+    
 }
 
-const addRole = () => {
+const addRole = () => { //THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
     console.log('Add a role');
+    const questions = 
+    [{ 
+        type: 'input',
+        name: 'addDepartment',
+        message: '?',
+    },];
 }
 
-const addEmployee = () => {
+const addEmployee = () => { //THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
     console.log('Add an employee');
+    const questions = 
+    [{ 
+        type: 'input',
+        name: 'addDepartment',
+        message: '?',
+    },];
 }
 
-const updateEmployeeRole = () => {
+const updateEmployeeRole = () => { //THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
     console.log('Update an employee role');
+    const questions = 
+    [{ 
+        type: 'input',
+        name: 'addDepartment',
+        message: '?',
+    },];
 }
 
 
