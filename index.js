@@ -1,13 +1,8 @@
 const inquirer = require('inquirer');
-//const express = require('express');
 const mysql = require('mysql2'); 
 require('dotenv').config();
 
-//const PORT = process.env.PORT || 3001;
-//const app = express();
-
-//app.use(express.urlencoded({ extended: false }));
-//app.use(express.json());
+let firstIt = true;
 
 const db = mysql.createConnection(
     {
@@ -20,7 +15,7 @@ const db = mysql.createConnection(
   );
   
 
-function actionPrompt() {
+const actionPrompt = () => {
     const questions = [
         {
             type: 'list',
@@ -64,12 +59,12 @@ function actionPrompt() {
                 break;
             case 'Quit':
                 console.log('Goodbye');
-                break;
+                process.exit(); // Exit the application
         }
     });
-}
+};
 
-function menuReturn() {
+const menuReturn = () => {
     /* const questions = [
         {
             type: 'input',
@@ -82,7 +77,7 @@ function menuReturn() {
         actionPrompt();
     }); */
     actionPrompt();
-}
+};
 
 
 const viewAllDepartments = () => {
@@ -237,6 +232,9 @@ const updateEmployeeRole = () => { //THEN I am prompted to select an employee to
     menuReturn();
 };
 
-
-actionPrompt(); // Start the application
+if(firstIt === true) {
+    firstIt = false;
+    console.log('Welcome to the Employee Tracker');
+    actionPrompt(); // Start the application
+};
 
