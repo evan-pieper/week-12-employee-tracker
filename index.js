@@ -181,17 +181,28 @@ const addRole = () => { //THEN I am prompted to enter the name, salary, and depa
     inquirer.prompt(questions).then(answers => {
         console.log(answers);
         // TODO: query the database to find the department ID for the department name entered
-        const departmentID = 1; //TODO: replace with the department ID from the database
+        let departmentID; //TODO: replace with the department ID from the database
+        const idQuery = 'SELECT id FROM department WHERE department_name = ?';
+        db.query(idQuery, answers.inputDepartment, function (err, res) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            console.log(res);
+            console.log(res[0]);
+            departmentID = res[0];
+            console.log(departmentID);
+            console.log(departmentID.id);
 
-
-        const query = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
-        db.query(query, [answers.inputTitle, answers.inputSalary, departmentID /* TODO: replace with DB query result*/], function (err, res) {
+            const insertQuery = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
+            db.query(insertQuery, [answers.inputTitle, answers.inputSalary, departmentID.id /* TODO: replace with DB query result*/], function (err, res) {
             if (err) {
                 console.error(err);
                 return;
             }
             console.log(res);
             viewAllRoles(); //show the updated table
+            });
         });
     });
 
