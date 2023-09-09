@@ -13,7 +13,7 @@ const db = mysql.createConnection(
     },
     console.log(`Connected to ${process.env.DB_NAME} database.`)
   );
-  
+
 
 const actionPrompt = () => {
     const questions = [
@@ -157,61 +157,86 @@ const addDepartment = () => { //THEN I am prompted to enter the name of the depa
     //menuReturn();
 };
 
-const addRole = () => { //THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
+const addRole = () => { //prompt the user to enter the name, salary, and department (validated from database) for the role and that role is added to the database
+    //TODO: show department names from the department table as a list to choose from
     console.log('Add a role');
-    const questions = 
-    [
-        { 
-        type: 'input',
-        name: 'inputTitle',
-        message: 'Enter the title for the new role: ',
-        },
 
-        { 
+    const query = 'SELECT department_name FROM department';
+    db.query(query, function (err, results) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        
+        let departmentList = results.map(function (obj) { //create an array of department names from the department table
+            return obj.department_name;
+        });
+        //console.log(departmentList);
+
+        const questions = 
+        [
+            { 
             type: 'input',
-            name: 'inputSalary',
-            message: 'Enter the salary for the new role: ',
-        },
-
-        { 
-            type: 'input',
-            name: 'inputDepartment',
-            message: 'Enter the department for the new role: ',
-        },
-    ];
-    inquirer.prompt(questions).then(answers => {
-        //console.log(answers);
-
-        let departmentID; 
-        const idQuery = 'SELECT id FROM department WHERE department_name = ?';
-        db.query(idQuery, answers.inputDepartment, function (err, res) {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            //console.log(res);
-            //console.log(res[0]);
-            departmentID = res[0];
-            //console.log(departmentID);
-            //console.log(departmentID.id);
-
-            const insertQuery = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
-            db.query(insertQuery, [answers.inputTitle, answers.inputSalary, departmentID.id], function (err, res) {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            console.log(res);
-            viewAllRoles(); //show the updated table
-            //menuReturn(); //return to the main menu 
+            name: 'inputTitle',
+            message: 'Enter the title for the new role: ',
+            },
+    
+            { 
+                type: 'input',
+                name: 'inputSalary',
+                message: 'Enter the salary for the new role: ',
+                validate: function (input) { //validate that the input is a number
+                    if (isNaN(input)) {
+                        return "Please enter a valid salary";
+                    }
+                    return true;
+                }
+            },
+    
+            { 
+                type: 'list',
+                name: 'departmentList',
+                message: 'Select the department for the new role: ',
+                choices: departmentList,
+            },
+        ];
+        inquirer.prompt(questions).then(answers => {
+            //console.log(answers);
+    
+            let departmentID; 
+            const idQuery = 'SELECT id FROM department WHERE department_name = ?';
+            db.query(idQuery, answers.inputDepartment, function (err, res) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                //console.log(res);
+                //console.log(res[0]);
+                departmentID = res[0];
+                //console.log(departmentID);
+                //console.log(departmentID.id);
+    
+                const insertQuery = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
+                db.query(insertQuery, [answers.inputTitle, answers.inputSalary, departmentID.id], function (err, res) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                console.log(res);
+                viewAllRoles(); //show the updated table
+                //menuReturn(); //return to the main menu 
+                });
             });
         });
+    
+        //menuReturn();
     });
 
-    //menuReturn();
 };
 
 const addEmployee = () => { //THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
+    //TODO: show role names from the role table as a list to choose from
+    //TODO: show manager names from the employee table as a list to choose from
     console.log('Add an employee');
     const questions = 
     [
@@ -229,11 +254,37 @@ const addEmployee = () => { //THEN I am prompted to enter the employee’s first
             type: 'input',
             name: 'inputRole',
             message: 'Enter the role for the new employee: ',
+            validate: function (input) {
+                if (input === "") {
+                    return "Please enter a role";
+                }
+                const query = 'SELECT * FROM role WHERE title = ?';
+                db.query(query, input, function (err, res) {
+                    if (err) {
+                        //console.error(err);
+                        return "Please enter a valid role";
+                    }
+                    return true;
+                });
+            }
         },
         { 
             type: 'input',
             name: 'inputManager',
-            message: 'Enter the name for the manager of the new employee (if no manager push enter)',
+            message: 'Enter the first name for the manager of the new employee (if no manager push enter)',
+            validate: function (input) {
+                if (input === "") { //if no manager is entered then the manager ID is null
+                    return true;
+                }
+                const query = 'SELECT * FROM role WHERE title = ?';
+                db.query(query, input, function (err, res) {
+                    if (err) {
+                        //console.error(err);
+                        return "Please enter a valid manager name or hit enter to skip";
+                    }
+                    return true;
+                });
+            }
         },
     ];
 
@@ -242,15 +293,58 @@ const addEmployee = () => { //THEN I am prompted to enter the employee’s first
         console.log(answers);
         let roleID = 1; //TODO: get the role ID from the role table
         let managerID = 1; //TODO: get the manager ID from the employee table
-        const query = 'INSERT INTO employee(first_name, last_name, role_id, manager_id) values(?,?,?,?)';
-        db.query(query, [answers.inputFirstName, answers.inputLastName, roleID, managerID], function (err, res) {
+
+        const roleQuery = 'SELECT id FROM role WHERE title = ?';
+        const managerQuery = 'SELECT id FROM employee WHERE first_name = ?';
+        const insertQuery = 'INSERT INTO employee(first_name, last_name, role_id, manager_id) values(?,?,?,?)';
+
+        db.query(roleQuery, answers.inputRole, function (err, res) {
             if (err) {
                 console.error(err);
                 return;
             }
-            console.log(res);
-            viewAllEmployees(); //show the updated table
-            //menuReturn(); //return to the main menu
+            //console.log(res);
+            //console.log(res[0]);
+            roleID = res[0];
+            //console.log(roleID);
+            //console.log(roleID.id);
+            if(answers.inputManager) {
+                db.query(managerQuery, answers.inputManager, function (err, res) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    //console.log(res);
+                    //console.log(res[0]);
+                    managerID = res[0];
+                    //console.log(managerID);
+                    //console.log(managerID.id);
+                    
+
+                    db.query(insertQuery, [answers.inputFirstName, answers.inputLastName, roleID.id, managerID.id], function (err, res) {
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                        console.log(res);
+                        viewAllEmployees(); //show the updated table
+                        //menuReturn(); //return to the main menu
+                    });
+                });
+            }
+
+            else {
+                db.query(insertQuery, [answers.inputFirstName, answers.inputLastName, roleID.id, null], function (err, res) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    console.log(res);
+                    viewAllEmployees(); //show the updated table
+                    //menuReturn(); //return to the main menu
+                });
+            }
+
         });
     });
 };
