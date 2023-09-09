@@ -202,15 +202,24 @@ const addRole = () => { //prompt the user to enter the name, salary, and departm
         ];
         inquirer.prompt(questions).then(answers => {
             //console.log(answers);
-    
-            const insertQuery = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
-            db.query(insertQuery, [answers.inputTitle, answers.inputSalary, departmentID.id], function (err, res) {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            console.log(res);
-            viewAllRoles(); //show the updated table (also runs menuReturn() after showing the table)
+            const idQuery = 'SELECT id FROM department WHERE department_name = ?';
+            db.query(idQuery, answers.departmentList, function (err, res) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+
+                const insertQuery = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
+                console.log(res.id);
+                console.log(res[0].id);
+                db.query(insertQuery, [answers.inputTitle, answers.inputSalary, res[0].id], function (err, res) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                console.log(res);
+                viewAllRoles(); //show the updated table (also runs menuReturn() after showing the table)
+                });
             });
         });
     });
