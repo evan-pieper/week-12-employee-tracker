@@ -167,7 +167,7 @@ const addRole = () => { //prompt the user to enter the name, salary, and departm
             console.error(err);
             return;
         }
-        
+
         let departmentList = results.map(function (obj) { //create an array of department names from the department table
             return obj.department_name;
         });
@@ -203,35 +203,17 @@ const addRole = () => { //prompt the user to enter the name, salary, and departm
         inquirer.prompt(questions).then(answers => {
             //console.log(answers);
     
-            let departmentID; 
-            const idQuery = 'SELECT id FROM department WHERE department_name = ?';
-            db.query(idQuery, answers.inputDepartment, function (err, res) {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-                //console.log(res);
-                //console.log(res[0]);
-                departmentID = res[0];
-                //console.log(departmentID);
-                //console.log(departmentID.id);
-    
-                const insertQuery = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
-                db.query(insertQuery, [answers.inputTitle, answers.inputSalary, departmentID.id], function (err, res) {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-                console.log(res);
-                viewAllRoles(); //show the updated table
-                //menuReturn(); //return to the main menu 
-                });
+            const insertQuery = 'INSERT INTO role(title, salary, department_id) values(?,?,?)';
+            db.query(insertQuery, [answers.inputTitle, answers.inputSalary, departmentID.id], function (err, res) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            console.log(res);
+            viewAllRoles(); //show the updated table (also runs menuReturn() after showing the table)
             });
         });
-    
-        //menuReturn();
     });
-
 };
 
 const addEmployee = () => { //THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
