@@ -346,24 +346,64 @@ const addEmployee = () => { //THEN I am prompted to enter the employee’s first
 
 const updateEmployeeRole = () => { //THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
     console.log('Update an employee role');
-    const questions = 
-    [{ 
-        type: 'input',
-        name: 'addDepartment',
-        message: '?',
-    },];
 
-    inquirer.prompt(questions).then(answers => {
-        console.log(answers);
-        const query = 'INSERT INTO role(roleName, roleSalary, roleDepartment) values(?,?,?)';
-        db.query(query, answers, function (err, res) {
+    const employeeQuery = 'SELECT first_name FROM employee';
+    db.query(employeeQuery, function (err, results) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+
+        let employeeList = results.map(function (obj) { //create an array of department names from the department table
+            return obj.first_name;
+        });
+
+        const roleQuery = 'SELECT title FROM role';
+        db.query(roleQuery, function (err, results) {
             if (err) {
                 console.error(err);
                 return;
             }
-            console.log(res);
-            viewAllEmployees(); //show the updated table
-            //menuReturn(); //return to the main menu
+
+            let roleList = results.map(function (obj) { //create an array of department names from the department table
+                return obj.title;
+            });
+
+            const questions =
+            [
+                {
+                    type: 'list',
+                    name: 'employeeList',
+                    message: 'Select the employee to update: ',
+                    choices: employeeList,
+                },
+                {
+                    type: 'list',
+                    name: 'roleList',
+                    message: 'Select the new role for the employee: ',
+                    choices: roleList,
+                },
+            ];
+            inquirer.prompt(questions).then(answers => {
+                //FINISH THIS
+                const roleIdQuery = 'SELECT id FROM role WHERE title = ?';
+                db.query(roleIdQuery, answers.roleList, function (err, res) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    
+                    const updateQuery = 'UPDATE employee SET role_id = ? WHERE first_name = ?';
+                    db.query(updateQuery, [res[0].id, answers.employeeList], function (err, res) {
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                        //console.log(res);
+                        viewAllEmployees(); //show the updated table
+                    });
+                });
+            });
         });
     });
 };
