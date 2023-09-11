@@ -241,78 +241,93 @@ const addEmployee = () => { //THEN I am prompted to enter the employee’s first
             return obj.title;
         });
 
-        const questions = 
-        [
-            { 
-            type: 'input',
-            name: 'inputFirstName',
-            message: 'Enter the first name for the new employee: ',
-            },
-            { 
+        const managerQuery = 'SELECT first_name FROM employee';
+
+        db.query(managerQuery, function (err, results) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            let managerList = results.map(function (obj) { //create an array of department names from the department table
+                return obj.first_name;
+            });
+
+            managerList.push('None'); //add None as an option for employees with no manager
+
+            const questions = 
+            [
+                { 
                 type: 'input',
-                name: 'inputLastName',
-                message: 'Enter the last name for the new employee: ',
-            },
-            { 
-                type: 'list',
-                name: 'inputRole',
-                message: 'Select the role for the new employee: ',
-                choices: roleList,
-            },
-            { 
-                type: 'input',
-                name: 'inputManager',
-                message: 'Enter the first name for the manager of the new employee (if no manager push enter)',
-                validate: function (input) {
-                    if (input === "") { //if no manager is entered then the manager ID is null
-                        return true;
+                name: 'inputFirstName',
+                message: 'Enter the first name for the new employee: ',
+                },
+                { 
+                    type: 'input',
+                    name: 'inputLastName',
+                    message: 'Enter the last name for the new employee: ',
+                },
+                { 
+                    type: 'list',
+                    name: 'inputRole',
+                    message: 'Select the role for the new employee: ',
+                    choices: roleList,
+                },
+                { 
+                    type: 'list',
+                    name: 'inputManager',
+                    message: 'Select the manager for the new employee: ',
+                    choices: managerList,
+                },
+            ];
+
+            console.log(""); // Add a line break so the table doesn't block the input prompt
+            inquirer.prompt(questions).then(answers => {
+                console.log(answers);
+                let roleID; //TODO: get the role ID from the role table
+                let managerID; //TODO: get the manager ID from the employee table
+
+                const roleQuery = 'SELECT id FROM role WHERE title = ?';
+                const managerQuery = 'SELECT id FROM employee WHERE first_name = ?';
+                const insertQuery = 'INSERT INTO employee(first_name, last_name, role_id, manager_id) values(?,?,?,?)';
+
+                db.query(roleQuery, answers.inputRole, function (err, res) {
+                    if (err) {
+                        console.error(err);
+                        return;
                     }
-                    const query = 'SELECT * FROM role WHERE title = ?';
-                    db.query(query, input, function (err, res) {
-                        if (err) {
-                            //console.error(err);
-                            return "Please enter a valid manager name or hit enter to skip";
-                        }
-                        return true;
-                    });
-                }
-            },
-        ];
+                    //console.log(res);
+                    //console.log(res[0]);
+                    roleID = res[0];
+                    //console.log(roleID);
+                    //console.log(roleID.id);
+                    if(answers.inputManager != 'None') { //if the employee has a manager, get the manager ID
+                        db.query(managerQuery, answers.inputManager, function (err, res) {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            //console.log(res);
+                            //console.log(res[0]);
+                            managerID = res[0];
+                            //console.log(managerID);
+                            //console.log(managerID.id);
+                            
 
-        console.log(""); // Add a line break so the table doesn't block the input prompt
-        inquirer.prompt(questions).then(answers => {
-            console.log(answers);
-            let roleID; //TODO: get the role ID from the role table
-            let managerID; //TODO: get the manager ID from the employee table
+                            db.query(insertQuery, [answers.inputFirstName, answers.inputLastName, roleID.id, managerID.id], function (err, res) {
+                                if (err) {
+                                    console.error(err);
+                                    return;
+                                }
+                                console.log(res);
+                                viewAllEmployees(); //show the updated table
+                                //menuReturn(); //return to the main menu
+                            });
+                        });
+                    }
 
-            const roleQuery = 'SELECT id FROM role WHERE title = ?';
-            const managerQuery = 'SELECT id FROM employee WHERE first_name = ?';
-            const insertQuery = 'INSERT INTO employee(first_name, last_name, role_id, manager_id) values(?,?,?,?)';
-
-            db.query(roleQuery, answers.inputRole, function (err, res) {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-                //console.log(res);
-                //console.log(res[0]);
-                roleID = res[0];
-                //console.log(roleID);
-                //console.log(roleID.id);
-                if(answers.inputManager) {
-                    db.query(managerQuery, answers.inputManager, function (err, res) {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        //console.log(res);
-                        //console.log(res[0]);
-                        managerID = res[0];
-                        //console.log(managerID);
-                        //console.log(managerID.id);
-                        
-
-                        db.query(insertQuery, [answers.inputFirstName, answers.inputLastName, roleID.id, managerID.id], function (err, res) {
+                    else { //if the employee has no manager, set the manager ID to null
+                        db.query(insertQuery, [answers.inputFirstName, answers.inputLastName, roleID.id, null], function (err, res) {
                             if (err) {
                                 console.error(err);
                                 return;
@@ -321,21 +336,9 @@ const addEmployee = () => { //THEN I am prompted to enter the employee’s first
                             viewAllEmployees(); //show the updated table
                             //menuReturn(); //return to the main menu
                         });
-                    });
-                }
+                    }
 
-                else {
-                    db.query(insertQuery, [answers.inputFirstName, answers.inputLastName, roleID.id, null], function (err, res) {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        console.log(res);
-                        viewAllEmployees(); //show the updated table
-                        //menuReturn(); //return to the main menu
-                    });
-                }
-
+                });
             });
         });
     });
